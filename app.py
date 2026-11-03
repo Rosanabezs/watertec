@@ -4,7 +4,6 @@ import altair as alt
 
 st.set_page_config(layout="wide", page_title="ERP Watertec - Dashboard Executivo")
 
-# Estilo visual corporativo refinado
 st.markdown("""
     <style>
     .kpi-row { display: flex; gap: 15px; margin-bottom: 20px; }
@@ -43,9 +42,6 @@ try:
     st.title("📊 ERP Watertec - Dashboard Comercial e Financeiro")
     st.markdown("Visão executiva com indicadores de desempenho e gráficos coloridos de alta legibilidade.")
 
-    # ==========================================
-    # 1. KPIS EXECUTIVOS NO TOPO
-    # ==========================================
     total_carteira = df['VALOR TOTAL DO PEDIDO'].sum()
     total_pendente = df[df['PENDENTE X PAGO'].astype(str).str.contains('PENDENTE', na=False)]['VALOR A PAGAR'].sum()
     total_pago = total_carteira - total_pendente
@@ -73,9 +69,6 @@ try:
         </div>
     """, unsafe_allow_html=True)
 
-    # ==========================================
-    # 2. DASHBOARD GRÁFICO COLORIDO E COMPACTO
-    # ==========================================
     venda_watertec_val = df['Venda watertec'].sum()
     custo_a_pagar = total_pendente
     disponivel_pago = total_pago
@@ -98,7 +91,6 @@ try:
     if not df.empty:
         col_g1, col_g2 = st.columns(2)
         
-        # Gráfico de Barras Colorido por Status Operacional
         with col_g1:
             st.markdown("<font size='2' color='#333'>**Volume por Status Operacional (Barras Coloridas)**</font>", unsafe_allow_html=True)
             df_status = df.groupby('STATUS')['VALOR TOTAL DO PEDIDO'].sum().reset_index()
@@ -109,7 +101,6 @@ try:
             ).properties(height=200)
             st.altair_chart(chart_status, use_container_width=True)
 
-        # Gráfico de Linha / Tendência Financeira
         with col_g2:
             st.markdown("<font size='2' color='#333'>**Evolução Financeira Consolidada (Gráfico de Linha)**</font>", unsafe_allow_html=True)
             df_fin_chart = pd.DataFrame({
@@ -126,9 +117,6 @@ try:
     st.markdown("</div>", unsafe_allow_html=True)
     st.divider()
 
-    # ==========================================
-    # 3. FILTROS EXECUTIVOS DE CONSULTA
-    # ==========================================
     st.markdown("### 🔍 Filtros de Consulta")
     f1, f2, f3, f4 = st.columns(4)
     
@@ -145,22 +133,18 @@ try:
         lista_status = ["Todos"] + sorted([str(x) for x in df['STATUS'].dropna().unique()]) if 'STATUS' in df.columns else ["Todos"]
         status_filtro = st.selectbox("Status Operacional:", lista_status)
 
-    # Aplicação dos Filtros
     df_filtrado = df.copy()
     if cliente_filtro != "Todos":
         df_filtrado = df_filtrado[df_filtrado['Cliente / Destino'].astype(str) == cliente_filtro]
     if ov_filtro != "Todas":
         df_filtrado = df_filtrado[df_filtrado['OV'] == ov_filtro]
     if pag_filtro != "Todos":
-        df_filtrado = df_filtrado[df_filtrado['PENDENTE X PAGO'].astype(str) == pag_filtro]
+        df_filtrado = df_filtrado[df_filtrado['PENDENTE X_PAGO' if 'PENDENTE X_PAGO' in df.columns else 'PENDENTE X PAGO'].astype(str) == pag_filtro]
     if status_filtro != "Todos":
         df_filtrado = df_filtrado[df_filtrado['STATUS'].astype(str) == status_filtro]
 
     st.divider()
 
-    # ==========================================
-    # 4. VISÃO DETALHADA POR CLIENTE
-    # ==========================================
     st.markdown("### 🏢 Visão Detalhada por Cliente e Itens")
     st.info("Desdobramento consolidado por cliente com base nos filtros selecionados.")
 
